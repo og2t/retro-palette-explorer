@@ -1,0 +1,28 @@
+- add npm support
+- export as csv
+- add dither interlace
+- add 'warmth'?!
+- real luminance vs CBM luma
+
+- converter that produces an image based on the 28 colours, and outputs and image (using FLI) with pixels that are 2x2 hires pixels / 1x2 multi colour pixels.
+
+- http://csdb.dk/release/?id=31784
+- http://csdb.dk/release/?id=24845
+
+- R: 2/a
+- G: 5
+- B: 6/e
+
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+Archive:
+✔ add canvas with these colours plotted @done (16-04-07 13:27)
+✔ add 'exclude default colours' @done (16-04-07 13:27)
+✔ find out possible scenarios @done (16-04-01 14:39)
+✔ exclude too flickering (components luminance too far apart) @done (16-04-01 14:39)
+✔ sort by: distance, luminance, hue @done (16-04-01 14:31)
+✔ find closest matches to rgb @done (16-04-01 14:31)
+✔ set all the possibilities @done (16-04-01 14:08)
+✓ find closest to hex colour (RGB) (16-08-11 14:20)
+✓ add crosshatch mixed (canvas) (16-08-11 14:20)
+✓ add dither multi (16-08-11 14:20)
+✓ add dither hires (16-08-11 14:20)

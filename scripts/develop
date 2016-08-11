@@ -1,0 +1,4 @@
+#!/bin/bash
+cd src
+harp server -p 9100 &
+browser-sync start --proxy 'localhost:9100' --files '**/*.*'
