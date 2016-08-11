@@ -5,45 +5,46 @@ html
     title Retro Palette Explorer
     link(rel='stylesheet', href='css/styles.css')
   body
-    h1 Retro Palette Explorer v0.3
+    h1 Retro Palette Explorer v0.4
     p by Digger/Elysium © 2016
 
     canvas#canvas
 
-    label(for="sort") Sort by
+    label(for='sort') Sort by
     select#sort
       - var options = []
-      - options.push({key: 'Unsorted',              value: ''})
-      - options.push({key: 'Luma',                  value: 'luma'})
-      - options.push({key: 'Luma Difference',       value: 'diffL'})
-      - options.push({key: 'Hue',                   value: 'h'})
-      - options.push({key: 'Hue, Luma',             value: 'h,luma'})
-      - options.push({key: 'Distance, Luma',        value: 'distance,luma'})
-      - options.push({key: 'Saturation',            value: 's'})
-      - options.push({key: 'Luma, Saturation',      value: 'luma,s'})
-      - options.push({key: 'Closest to $0',         value: 'distTo0'})
-      - options.push({key: 'Closest to $1',         value: 'distTo1'})
-      - options.push({key: 'Closest to $2',         value: 'distTo2'})
-      - options.push({key: 'Closest to $3',         value: 'distTo3'})
-      - options.push({key: 'Closest to $4',         value: 'distTo4'})
-      - options.push({key: 'Closest to $5',         value: 'distTo5'})
-      - options.push({key: 'Closest to $6',         value: 'distTo6'})
-      - options.push({key: 'Closest to $7',         value: 'distTo7'})
-      - options.push({key: 'Closest to $8',         value: 'distTo8'})
-      - options.push({key: 'Closest to $9',         value: 'distTo9'})
-      - options.push({key: 'Closest to $A',         value: 'distToA'})
-      - options.push({key: 'Closest to $B',         value: 'distToB'})
-      - options.push({key: 'Closest to $C',         value: 'distToC'})
-      - options.push({key: 'Closest to $D',         value: 'distToD'})
-      - options.push({key: 'Closest to $E',         value: 'distToE'})
-      - options.push({key: 'Closest to $F',         value: 'distToF'})
-      - options.push({key: 'Closest to R',          value: 'distToRed'})
-      - options.push({key: 'Closest to G',          value: 'distToGreen'})
-      - options.push({key: 'Closest to B',          value: 'distToBlue'})
+      - options.push({key: 'Unsorted',                  value: ''})
+      - options.push({key: 'Luma',                      value: 'luma', selected: true})
+      - options.push({key: 'Luma Difference',           value: 'diffL'})
+      - options.push({key: 'Luma Difference, Distance', value: 'diffL,distance'})
+      - options.push({key: 'Hue',                       value: 'h'})
+      - options.push({key: 'Hue, Luma',                 value: 'h,luma'})
+      - options.push({key: 'Distance, Luma',            value: 'distance,luma'})
+      - options.push({key: 'Saturation',                value: 's'})
+      - options.push({key: 'Luma, Saturation',          value: 'luma,s'})
+      - options.push({key: 'Closest to $0',             value: 'distTo0'})
+      - options.push({key: 'Closest to $1',             value: 'distTo1'})
+      - options.push({key: 'Closest to $2',             value: 'distTo2'})
+      - options.push({key: 'Closest to $3',             value: 'distTo3'})
+      - options.push({key: 'Closest to $4',             value: 'distTo4'})
+      - options.push({key: 'Closest to $5',             value: 'distTo5'})
+      - options.push({key: 'Closest to $6',             value: 'distTo6'})
+      - options.push({key: 'Closest to $7',             value: 'distTo7'})
+      - options.push({key: 'Closest to $8',             value: 'distTo8'})
+      - options.push({key: 'Closest to $9',             value: 'distTo9'})
+      - options.push({key: 'Closest to $A',             value: 'distToA'})
+      - options.push({key: 'Closest to $B',             value: 'distToB'})
+      - options.push({key: 'Closest to $C',             value: 'distToC'})
+      - options.push({key: 'Closest to $D',             value: 'distToD'})
+      - options.push({key: 'Closest to $E',             value: 'distToE'})
+      - options.push({key: 'Closest to $F',             value: 'distToF'})
+      - options.push({key: 'Closest to R',              value: 'distToRed'})
+      - options.push({key: 'Closest to G',              value: 'distToGreen'})
+      - options.push({key: 'Closest to B',              value: 'distToBlue'})
       each sort in options
-        option(value=sort.value) #{sort.key}
+        option(value=sort.value, selected=sort.selected) #{sort.key}
 
-    label(for="palette") Palette
+    label(for='palette') Palette
     select#palette
       - var paletteTypes = []
       - paletteTypes.push({key: 'Pepto',  value: 'PEPTO'})
@@ -53,27 +54,27 @@ html
       each palette in paletteTypes
         option(value=palette.value) #{palette.key}
 
-    label(for="dither") Dither
+    label(for='dither') Dither
     select#dither
       - var ditherTypes = []
       - ditherTypes.push({key: 'mix',  value: 'noDither'})
-      - ditherTypes.push({key: 'hires', value: 'hiresDither'})
+      - ditherTypes.push({key: 'hires', value: 'hiresDither', selected: true})
       - ditherTypes.push({key: 'multi',  value: 'multiDither'})
       - ditherTypes.push({key: 'line', value: 'lineDither'})
       each dither in ditherTypes
-        option(value=dither.value) #{dither.key}
+        option(value=dither.value, selected=dither.selected) #{dither.key}
 
-    label(for="slider") Luma Diff Threshold
-    input#slider(type="range", min="0", max="1" step="0.01" value="1")
-    input#text(type="text", value="1")
+    label(for='slider') Luma Diff Threshold
+    input#slider(type='range', min='0', max='1' step='0.01' value='1')
+    input#text(type='text', value='1')
 
-    input#exclude(type="checkbox", name="exclude")
-    label(for="exclude") Only mixed colors
+    input#exclude(type='checkbox', name='exclude')
+    label(for='exclude') Only mixed
 
-    input#swap(type="checkbox", name="swap")
-    label(for="swap") Align brigthness
+    input#swap(type='checkbox', name='swap', checked='true')
+    label(for='swap') Align
 
-    a#downloadlink(download="colors.json" style="display: none") Download JSON
+    a#downloadlink(download='colors.json' style='display: none') Download JSON
 
     table#table
 

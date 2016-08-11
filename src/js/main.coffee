@@ -1,44 +1,46 @@
 class Main
 
   palette: Palettes.PEPTO
-  options: []
+  paletteType: 'PEPTO'
+  sortBy: ['luma']
   lumaDiffThreshold: 1
-  ditherType: 'noDither'
+  ditherType: 'hiresDither'
   excludeNative: false
-  scale: 1
+  scale: 2
+  swap: true
 
   constructor: () ->
     @canvas = document.getElementById 'canvas'
     @context = @canvas.getContext '2d'
     @canvas.addEventListener 'click', (event) =>
       @scale = if @scale is 1 then 2 else 1
-      @drawColors()
+      @filter()
 
     @excludeCheckbox = document.getElementById 'exclude'
     @excludeCheckbox.onchange = (event) =>
       @excludeNative = event.target.checked
-      @filter @options
+      @filter()
 
     @swapCheckbox = document.getElementById 'swap'
     @swapCheckbox.onchange = (event) =>
       @swap = event.target.checked
-      @filter @options
+      @filter()
 
     @sortSelect = document.getElementById 'sort'
     @sortSelect.onchange = (event) =>
-      @options = (event.target.options[event.target.selectedIndex].value).split ','
-      @filter @options
+      @sortBy = (event.target.options[event.target.selectedIndex].value).split ','
+      @filter()
 
     @ditherSelect = document.getElementById 'dither'
     @ditherSelect.onchange = (event) =>
       @ditherType = event.target.options[event.target.selectedIndex].value
-      @filter @options
+      @filter()
 
     @paletteSelect = document.getElementById 'palette'
     @paletteSelect.onchange = (event) =>
-      paletteType = (event.target.options[event.target.selectedIndex].value)
-      @palette = Palettes[paletteType]
-      @filter @options
+      @paletteType = (event.target.options[event.target.selectedIndex].value)
+      @palette = Palettes[@paletteType]
+      @filter()
 
     @text = document.getElementById 'text'
 
@@ -47,7 +49,7 @@ class Main
       @text.value = event.target.value
     @slider.onchange = (event) =>
       @lumaDiffThreshold = event.target.value
-      @filter @options
+      @filter()
 
     @filter()
     return
@@ -65,8 +67,12 @@ class Main
         col2HSL = ColorUtils.HEXtoHSL col2
         distance = ColorUtils.getHEXDistance col1, col2
         diffLuma = Math.abs(Palettes.lumas[index1] - Palettes.lumas[index2]) / 32
+        diffL = Math.abs(col2HSL.l - col1HSL.l)
 
-        if diffLuma > @lumaDiffThreshold then continue
+        if @paletteType is 'PICO8'
+          if diffL > @lumaDiffThreshold then continue
+        else
+          if diffLuma > @lumaDiffThreshold then continue
 
         if @excludeNative and (col1 is col2) then continue
 
@@ -82,11 +88,10 @@ class Main
           s: mixHSL.s
           l: mixHSL.l
           luma: (Palettes.lumas[index1] + Palettes.lumas[index2]) / 2
-          # l: mixHSL.l
           diffH: Math.abs(col2HSL.h - col1HSL.h)
           diffS: Math.abs(col2HSL.s - col1HSL.s)
+          diffL: diffL
           diffLuma: diffLuma
-          # diffL = Math.abs(col2HSL.l - col1HSL.l)
           distance: distance
           index1: index1.toString(16)
           index2: index2.toString(16)
@@ -122,10 +127,12 @@ class Main
     return
 
 
-  filter: (options = []) ->
+  filter: () ->
+    if @paletteType is 'PICO8'
+      @sortBy = @sortBy.join(',').replace('luma', 'l').split(',')
     @createData()
-    if options.length > 0
-      @mixed.sort SortUtils.dynamicMultiSort options
+    if @sortBy.length > 0
+      @mixed.sort SortUtils.dynamicMultiSort @sortBy
     @createTable()
     @fillTable()
     @drawColors()
@@ -172,11 +179,13 @@ class Main
       "color2"
       "color1"
       "color2"
-      "distance"
+      "RGB distance"
       "hue"
       "saturation"
       "CBM luma"
       "CBM luma diff"
+      "luma"
+      "luma diff"
       "hex value"
     ]
 
@@ -246,9 +255,13 @@ class Main
       row.insertCell(8).innerHTML = obj.s.toFixed(2)
       row.insertCell(9).innerHTML = obj.luma.toFixed(2)
       row.insertCell(10).innerHTML = obj.diffLuma.toFixed(2)
-      row.insertCell(11).innerHTML = obj.mix
+      row.insertCell(11).innerHTML = obj.l.toFixed(2)
+      row.insertCell(12).innerHTML = obj.diffL.toFixed(2)
+      row.insertCell(13).innerHTML = obj.mix
       canvas = document.getElementById "canvas-#{i}"
       HDPI.detectAndSetRatio canvas
+      context = canvas.getContext '2d'
+      context.scale @scale, @scale
       @[@ditherType] canvas, obj.col1, obj.col2, cellSize, cellSize
     return
 

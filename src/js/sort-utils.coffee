@@ -16,7 +16,6 @@ class SortUtils
       # try getting a different result from 0 (equal)
       # as long as we have extra properties to compare
       while result == 0 and i < numberOfProps
-        log props[i]
         result = SortUtils.dynamicSort(props[i])(a, b)
         i++
       return result
