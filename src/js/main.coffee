@@ -5,14 +5,23 @@ class Main
   lumaDiffThreshold: 1
   ditherType: 'noDither'
   excludeNative: false
+  scale: 1
 
   constructor: () ->
     @canvas = document.getElementById 'canvas'
     @context = @canvas.getContext '2d'
+    @canvas.addEventListener 'click', (event) =>
+      @scale = if @scale is 1 then 2 else 1
+      @drawColors()
 
     @excludeCheckbox = document.getElementById 'exclude'
     @excludeCheckbox.onchange = (event) =>
       @excludeNative = event.target.checked
+      @filter @options
+
+    @swapCheckbox = document.getElementById 'swap'
+    @swapCheckbox.onchange = (event) =>
+      @swap = event.target.checked
       @filter @options
 
     @sortSelect = document.getElementById 'sort'
@@ -60,6 +69,13 @@ class Main
         if diffLuma > @lumaDiffThreshold then continue
 
         if @excludeNative and (col1 is col2) then continue
+
+        if @swap
+          # Switch colors
+          if col1HSL.l > col2HSL.l
+            temp = col1
+            col1 = col2
+            col2 = temp
 
         @mixed.push
           h: mixHSL.h
@@ -125,9 +141,11 @@ class Main
   drawColors: () ->
     size = 8
     @context.fillStyle = '#000'
-    @canvas.width = 16 * size
-    @canvas.height = 8 * size
+    @canvas.width = 16 * size * @scale
+    @canvas.height = 8 * size * @scale
+    @context.scale @scale, @scale
     HDPI.detectAndSetRatio @canvas
+    @context.imageSmoothingEnabled = false
     @context.fillRect 0, 0, @canvas.width, @canvas.height
 
     x = 0

@@ -2,10 +2,11 @@ doctype html
 html
   head
     meta(charset='utf-8')
-    title C64 136 color analysis
+    title Retro Palette Explorer
     link(rel='stylesheet', href='css/styles.css')
   body
-    h1 C64 136 Color Explorer v0.3
+    h1 Retro Palette Explorer v0.3
+    p by Digger/Elysium © 2016
 
     canvas#canvas
 
@@ -62,19 +63,19 @@ html
       each dither in ditherTypes
         option(value=dither.value) #{dither.key}
 
-    label(for="palette") Luma Diff Threshold
+    label(for="slider") Luma Diff Threshold
     input#slider(type="range", min="0", max="1" step="0.01" value="1")
     input#text(type="text", value="1")
 
     input#exclude(type="checkbox", name="exclude")
-    label(for="exclude") Exclude native colors
+    label(for="exclude") Only mixed colors
+
+    input#swap(type="checkbox", name="swap")
+    label(for="swap") Align brigthness
 
     a#downloadlink(download="colors.json" style="display: none") Download JSON
 
     table#table
-
-    footer
-      p by Digger/Elysium © 2016
 
     script(src='js/log.js')
     script(src='js/hdpi.js')
