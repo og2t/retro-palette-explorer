@@ -61,6 +61,7 @@ class Main
       for index2 in [index1..0xf]
         col1 = ColorUtils.colorToHEX @palette[index1]
         col2 = ColorUtils.colorToHEX @palette[index2]
+        mixIndex = (Palettes.lumaOrder.indexOf(index1) + Palettes.lumaOrder.indexOf(index2)) / 2
         mix = ColorUtils.mixHEX col1, col2
         mixHSL = ColorUtils.HEXtoHSL mix
         col1HSL = ColorUtils.HEXtoHSL col1
@@ -74,7 +75,8 @@ class Main
         else
           if diffLuma > @lumaDiffThreshold then continue
 
-        if @excludeNative and (col1 is col2) then continue
+        # if @excludeNative and (col1 is col2) then continue
+        if @excludeNative and (col1 isnt col2) then continue
 
         if @swap
           # Switch colors
@@ -87,6 +89,7 @@ class Main
           h: mixHSL.h
           s: mixHSL.s
           l: mixHSL.l
+          mixIndex: mixIndex
           luma: (Palettes.lumas[index1] + Palettes.lumas[index2]) / 2
           diffH: Math.abs(col2HSL.h - col1HSL.h)
           diffS: Math.abs(col2HSL.s - col1HSL.s)
@@ -136,6 +139,7 @@ class Main
     @createTable()
     @fillTable()
     @drawColors()
+    # @createGradient()
     @print JSON.stringify @json
     return
 
@@ -148,7 +152,7 @@ class Main
   drawColors: () ->
     size = 8
     @context.fillStyle = '#000'
-    @canvas.width = 16 * size * @scale
+    @canvas.width = 17 * size * @scale
     @canvas.height = 8 * size * @scale
     @context.scale @scale, @scale
     HDPI.detectAndSetRatio @canvas
@@ -163,6 +167,38 @@ class Main
       if x > 16
         x = 0
         y++
+    return
+
+  # Didn't make sense
+  createGradient: () ->
+    output = []
+
+    numColors = @mixed.length
+    colorRange = 4096 / (numColors - 1)
+    colors = []
+
+    for colorObj, index in @mixed
+      colorRGB = ColorUtils.HEXtoRGBObject colorObj.mix
+      colorStop =
+        midpoint: 50
+        type: 'userStop'
+        location: Math.round(index * colorRange)
+        color:
+          red: colorRGB.r
+          green: colorRGB.g
+          blue: colorRGB.b
+      colors.push colorStop
+
+    gradientTemplate =
+      name: "[#{numColors}]"
+      gradientForm: 'customStops'
+      interpolation: 4096
+      colors: colors
+
+    output.push gradientTemplate
+
+    log JSON.stringify(output)
+    @print JSON.stringify(output)
     return
 
 
