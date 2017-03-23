@@ -8,6 +8,7 @@ class Main
   excludeNative: false
   scale: 2
   swap: true
+  stopLoop: false
 
   constructor: () ->
     @canvas = document.getElementById 'canvas'
@@ -35,6 +36,13 @@ class Main
     @ditherSelect = document.getElementById 'dither'
     @ditherSelect.onchange = (event) =>
       @ditherType = event.target.options[event.target.selectedIndex].value
+      if @ditherType is 'lace'
+        @stopLoop = false
+        @loop()
+      else
+        @stopLoop = true
+
+
       @filter()
 
     @paletteSelect = document.getElementById 'palette'
@@ -283,14 +291,13 @@ class Main
   fillTable: () ->
     cellSize = 16
     body = @table.createTBody()
-    log @ditherType
     for obj, i in @mixed
       row = body.insertRow i
       row.insertCell(0).innerHTML = i + 1
       if @ditherType is 'noDither'
         row.insertCell(1).innerHTML = "<div class='cell' style='background: #{obj.mix};'/>"
       else if @ditherType is 'lace'
-        row.insertCell(1).innerHTML = "<div class='cell'><div class='flick cell-1' style='background: #{obj.col1};'></div><div class='flick cell-2' style='background: #{obj.col2};'></div></div>"
+        row.insertCell(1).innerHTML = "<div class='cell'><div class='cell-odd' style='background: #{obj.col1};'></div><div class='cell-even' style='background: #{obj.col2};'></div></div>"
       else
         row.insertCell(1).innerHTML = "<canvas class='dither' width='#{cellSize}' height='#{cellSize}' id='canvas-#{i}'/>"
         canvas = document.getElementById "canvas-#{i}"
@@ -310,6 +317,14 @@ class Main
       row.insertCell(12).innerHTML = obj.diffL.toFixed(2)
       row.insertCell(13).innerHTML = obj.mix
     return
+
+
+  loop: () ->
+    @table.classList.toggle 'odd'
+    if @stopLoop then return
+    requestAnimationFrame => @loop()
+    return
+
 
 # Bootstrap
 main = new Main

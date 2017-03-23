@@ -44,32 +44,25 @@ tr
     background: #333
 
 .cell,
-.flick
+.cell-odd,
+.cell-even
   width: 16px
   height: 16px
 
 .cell
   position: relative
 
-@keyframes flick1
-  0%
-    opacity: 0
-  100%
-    opacity: 1
-
-@keyframes flick2
-  0%
-    opacity: 1
-  100%
-    opacity: 0
-
-.cell-1
+.cell-odd
   position: absolute
-  animation: flick1 10ms infinite
+  display: none
+  .odd &
+    display: block
 
-.cell-2
+.cell-even
   position: absolute
-  animation: flick2 10ms infinite
+  display: block
+  .odd &
+    display: none
 
 // .dither
 //   border: 1px solid black
