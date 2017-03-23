@@ -4,7 +4,7 @@ class Main
   paletteType: 'PEPTO'
   sortBy: ['luma']
   lumaDiffThreshold: 1
-  ditherType: 'hiresDither'
+  ditherType: 'noDither'
   excludeNative: false
   scale: 2
   swap: true
@@ -12,6 +12,7 @@ class Main
   constructor: () ->
     @canvas = document.getElementById 'canvas'
     @context = @canvas.getContext '2d'
+
     @canvas.addEventListener 'click', (event) =>
       @scale = if @scale is 1 then 2 else 1
       @filter()
@@ -154,7 +155,6 @@ class Main
     @context.fillStyle = '#000'
     @canvas.width = 17 * size * @scale
     @canvas.height = 8 * size * @scale
-    @context.scale @scale, @scale
     HDPI.detectAndSetRatio @canvas
     @context.imageSmoothingEnabled = false
     @context.fillRect 0, 0, @canvas.width, @canvas.height
@@ -236,9 +236,15 @@ class Main
     mix = ColorUtils.mixHEX col1, col2
     context = canvas.getContext '2d'
     context.fillStyle = mix
-    context.fillRect offsetX, offsetY, w, h
+    context.fillRect offsetX * @scale, offsetY * @scale, w * @scale, h * @scale
     return
 
+  lace: (canvas, col1, col2, w, h, offsetX = 0, offsetY = 0) ->
+    mix = ColorUtils.mixHEX col1, col2
+    context = canvas.getContext '2d'
+    context.fillStyle = mix
+    context.fillRect offsetX * @scale, offsetY * @scale, w * @scale, h * @scale
+    return
 
   hiresDither: (canvas, col1, col2, w, h, offsetX = 0, offsetY = 0) ->
     context = canvas.getContext '2d'
@@ -249,7 +255,7 @@ class Main
             if x % 2 then col1 else col2
           else
             if x % 2 then col2 else col1
-        context.fillRect x + offsetX, y + offsetY, 1, 1
+        context.fillRect (x + offsetX) * @scale, (y + offsetY) * @scale, @scale, @scale
     return
 
 
@@ -257,7 +263,7 @@ class Main
     context = canvas.getContext '2d'
     for y in [0...h]
       context.fillStyle = if y % 2 then col1 else col2
-      context.fillRect offsetX, y + offsetY, w, 1
+      context.fillRect (offsetX) * @scale, (y + offsetY) * @scale, w * @scale, @scale
     return
 
 
@@ -270,18 +276,27 @@ class Main
             if Math.ceil((x + 1) / 2) % 2 then col1 else col2
           else
             if Math.ceil((x + 1) / 2) % 2 then col2 else col1
-        context.fillRect x + offsetX, y + offsetY, 1, 1
+        context.fillRect (x + offsetX) * @scale, (y + offsetY) * @scale, @scale, @scale
     return
 
 
   fillTable: () ->
     cellSize = 16
     body = @table.createTBody()
+    log @ditherType
     for obj, i in @mixed
       row = body.insertRow i
       row.insertCell(0).innerHTML = i + 1
-      # row.insertCell(1).innerHTML = "<div class='cell' style='background: #{obj.mix}'/>"
-      row.insertCell(1).innerHTML = "<canvas class='dither' width='#{cellSize}' height='#{cellSize}' id='canvas-#{i}'/>"
+      if @ditherType is 'noDither'
+        row.insertCell(1).innerHTML = "<div class='cell' style='background: #{obj.mix};'/>"
+      else if @ditherType is 'lace'
+        row.insertCell(1).innerHTML = "<div class='cell'><div class='flick cell-1' style='background: #{obj.col1};'></div><div class='flick cell-2' style='background: #{obj.col2};'></div></div>"
+      else
+        row.insertCell(1).innerHTML = "<canvas class='dither' width='#{cellSize}' height='#{cellSize}' id='canvas-#{i}'/>"
+        canvas = document.getElementById "canvas-#{i}"
+        HDPI.detectAndSetRatio canvas
+        context = canvas.getContext '2d'
+        @[@ditherType] canvas, obj.col1, obj.col2, cellSize / @scale, cellSize / @scale
       row.insertCell(2).innerHTML = obj.index1
       row.insertCell(3).innerHTML = obj.index2
       row.insertCell(4).innerHTML = "<div class='cell' style='background: #{obj.col1}'/>"
@@ -294,11 +309,6 @@ class Main
       row.insertCell(11).innerHTML = obj.l.toFixed(2)
       row.insertCell(12).innerHTML = obj.diffL.toFixed(2)
       row.insertCell(13).innerHTML = obj.mix
-      canvas = document.getElementById "canvas-#{i}"
-      HDPI.detectAndSetRatio canvas
-      context = canvas.getContext '2d'
-      context.scale @scale, @scale
-      @[@ditherType] canvas, obj.col1, obj.col2, cellSize, cellSize
     return
 
 # Bootstrap

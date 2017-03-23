@@ -39,12 +39,37 @@ tr
   padding: 0
   margin: 0
   height: 6px
+  position: relative
   &:hover
     background: #333
 
-.cell
+.cell,
+.flick
   width: 16px
   height: 16px
+
+.cell
+  position: relative
+
+@keyframes flick1
+  0%
+    opacity: 0
+  100%
+    opacity: 1
+
+@keyframes flick2
+  0%
+    opacity: 1
+  100%
+    opacity: 0
+
+.cell-1
+  position: absolute
+  animation: flick1 10ms infinite
+
+.cell-2
+  position: absolute
+  animation: flick2 10ms infinite
 
 // .dither
 //   border: 1px solid black
@@ -66,6 +91,7 @@ label
 #canvas
   display: block
   margin-bottom: 20px
+  cursor: pointer
 
 #text
   background: none

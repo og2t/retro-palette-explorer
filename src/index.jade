@@ -5,8 +5,8 @@ html
     title Retro Palette Explorer
     link(rel='stylesheet', href='css/styles.css')
   body
-    h1 Retro Palette Explorer v0.4
-    p by Digger/Elysium © 2016
+    h1 Retro Palette Explorer v0.5
+    p by Digger/Elysium © 2016-17
 
     canvas#canvas
 
@@ -62,6 +62,7 @@ html
       - ditherTypes.push({key: 'hires', value: 'hiresDither', selected: true})
       - ditherTypes.push({key: 'multi',  value: 'multiDither'})
       - ditherTypes.push({key: 'line', value: 'lineDither'})
+      - ditherTypes.push({key: 'lace',  value: 'lace'})
       each dither in ditherTypes
         option(value=dither.value, selected=dither.selected) #{dither.key}
 
@@ -70,7 +71,7 @@ html
     input#text(type='text', value='1')
 
     input#exclude(type='checkbox', name='exclude')
-    label(for='exclude') Only mixed
+    label(for='exclude') Hide mixed
 
     input#swap(type='checkbox', name='swap', checked='true')
     label(for='swap') Align
