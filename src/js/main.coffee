@@ -143,6 +143,7 @@ class Main
     if @paletteType is 'PICO8'
       @sortBy = @sortBy.join(',').replace('luma', 'l').split(',')
     @createData()
+    @sortBy.unshift 'diffLuma'
     if @sortBy.length > 0
       @mixed.sort SortUtils.dynamicMultiSort @sortBy
     @createTable()
