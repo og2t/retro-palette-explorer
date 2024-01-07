@@ -3,12 +3,15 @@ var Main, main;
 Main = (function() {
   class Main {
     constructor() {
-      this.canvas = document.getElementById('canvas');
-      this.context = this.canvas.getContext('2d');
-      this.canvas.addEventListener('click', (event) => {
+      this.canvasContainer = document.getElementById('canvas-container');
+      this.canvasContainer.addEventListener('click', (event) => {
         this.scale = this.scale === 1 ? 2 : 1;
         return this.filter();
       });
+      this.canvas = document.getElementById('canvas');
+      this.context = this.canvas.getContext('2d');
+      this.canvasAlt = document.getElementById('canvas-alt');
+      this.contextAlt = this.canvasAlt.getContext('2d');
       this.excludeCheckbox = document.getElementById('exclude');
       this.excludeCheckbox.onchange = (event) => {
         this.excludeNative = event.target.checked;
@@ -27,11 +30,17 @@ Main = (function() {
       this.ditherSelect = document.getElementById('dither');
       this.ditherSelect.onchange = (event) => {
         this.ditherType = event.target.options[event.target.selectedIndex].value;
+        console.log(this.ditherType);
         if (this.ditherType === 'lace') {
           this.stopLoop = false;
           this.loop();
         } else {
+          // Fix by cancelAnimationFrame
           this.stopLoop = true;
+          setTimeout(() => {
+            this.table.classList.remove('odd');
+            return this.canvasContainer.classList.remove('odd');
+          }, 100);
         }
         return this.filter();
       };
@@ -178,11 +187,17 @@ Main = (function() {
       var j, len, obj, ref, size, x, y;
       size = 8;
       this.context.fillStyle = '#000';
+      this.contextAlt.fillStyle = '#000';
       this.canvas.width = 17 * size * this.scale;
+      this.canvasAlt.width = 17 * size * this.scale;
       this.canvas.height = 8 * size * this.scale;
+      this.canvasAlt.height = 8 * size * this.scale;
       HDPI.detectAndSetRatio(this.canvas);
+      HDPI.detectAndSetRatio(this.canvasAlt);
       this.context.imageSmoothingEnabled = false;
+      this.contextAlt.imageSmoothingEnabled = false;
       this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.contextAlt.fillRect(0, 0, this.canvas.width, this.canvas.height);
       x = 0;
       y = 0;
       ref = this.mixed;
@@ -255,11 +270,14 @@ Main = (function() {
     }
 
     lace(canvas, col1, col2, w, h, offsetX = 0, offsetY = 0) {
-      var context, mix;
+      var context, contextAlt, mix;
       mix = ColorUtils.mixHEX(col1, col2);
-      context = canvas.getContext('2d');
-      context.fillStyle = mix;
+      context = this.canvas.getContext('2d');
+      context.fillStyle = col1;
       context.fillRect(offsetX * this.scale, offsetY * this.scale, w * this.scale, h * this.scale);
+      contextAlt = this.canvasAlt.getContext('2d');
+      contextAlt.fillStyle = col2;
+      contextAlt.fillRect(offsetX * this.scale, offsetY * this.scale, w * this.scale, h * this.scale);
     }
 
     hiresDither(canvas, col1, col2, w, h, offsetX = 0, offsetY = 0) {
@@ -330,6 +348,7 @@ Main = (function() {
 
     loop() {
       this.table.classList.toggle('odd');
+      this.canvasContainer.classList.toggle('odd');
       if (this.stopLoop) {
         return;
       }
