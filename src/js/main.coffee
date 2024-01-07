@@ -11,12 +11,16 @@ class Main
   stopLoop: false
 
   constructor: () ->
+    @canvasContainer = document.getElementById 'canvas-container'
+    @canvasContainer.addEventListener 'click', (event) =>
+      @scale = if @scale is 1 then 2 else 1
+      @filter()
+
     @canvas = document.getElementById 'canvas'
     @context = @canvas.getContext '2d'
 
-    @canvas.addEventListener 'click', (event) =>
-      @scale = if @scale is 1 then 2 else 1
-      @filter()
+    @canvasAlt = document.getElementById 'canvas-alt'
+    @contextAlt = @canvasAlt.getContext '2d'
 
     @excludeCheckbox = document.getElementById 'exclude'
     @excludeCheckbox.onchange = (event) =>
@@ -36,13 +40,17 @@ class Main
     @ditherSelect = document.getElementById 'dither'
     @ditherSelect.onchange = (event) =>
       @ditherType = event.target.options[event.target.selectedIndex].value
+      console.log(@ditherType)
       if @ditherType is 'lace'
         @stopLoop = false
         @loop()
       else
+        # Fix by cancelAnimationFrame
         @stopLoop = true
-
-
+        setTimeout => 
+          @table.classList.remove 'odd'
+          @canvasContainer.classList.remove 'odd'
+        , 100
       @filter()
 
     @paletteSelect = document.getElementById 'palette'
@@ -181,11 +189,17 @@ class Main
   drawColors: () ->
     size = 8
     @context.fillStyle = '#000'
+    @contextAlt.fillStyle = '#000'
     @canvas.width = 17 * size * @scale
+    @canvasAlt.width = 17 * size * @scale
     @canvas.height = 8 * size * @scale
+    @canvasAlt.height = 8 * size * @scale
     HDPI.detectAndSetRatio @canvas
+    HDPI.detectAndSetRatio @canvasAlt
     @context.imageSmoothingEnabled = false
+    @contextAlt.imageSmoothingEnabled = false
     @context.fillRect 0, 0, @canvas.width, @canvas.height
+    @contextAlt.fillRect 0, 0, @canvas.width, @canvas.height
 
     x = 0
     y = 0
@@ -269,9 +283,12 @@ class Main
 
   lace: (canvas, col1, col2, w, h, offsetX = 0, offsetY = 0) ->
     mix = ColorUtils.mixHEX col1, col2
-    context = canvas.getContext '2d'
-    context.fillStyle = mix
+    context = @canvas.getContext '2d'
+    context.fillStyle = col1
     context.fillRect offsetX * @scale, offsetY * @scale, w * @scale, h * @scale
+    contextAlt = @canvasAlt.getContext '2d'
+    contextAlt.fillStyle = col2
+    contextAlt.fillRect offsetX * @scale, offsetY * @scale, w * @scale, h * @scale
     return
 
   hiresDither: (canvas, col1, col2, w, h, offsetX = 0, offsetY = 0) ->
@@ -341,6 +358,7 @@ class Main
 
   loop: () ->
     @table.classList.toggle 'odd'
+    @canvasContainer.classList.toggle 'odd'
     if @stopLoop then return
     requestAnimationFrame => @loop()
     return

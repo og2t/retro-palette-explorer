@@ -1,4 +1,5 @@
-- add interlace for pallete preview
+- cancelAnimationFrame
+
 - add dither interlace
 
 - export as .act
@@ -15,6 +16,7 @@
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+  ✔ add interlace for pallete preview @done(24-01-07 18:32)
   ✔ add npm support @done(24-01-07 17:47)
   ✔ add canvas with these colours plotted @done (16-04-07 13:27)
   ✔ add 'exclude default colours' @done (16-04-07 13:27)

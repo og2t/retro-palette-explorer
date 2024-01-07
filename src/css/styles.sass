@@ -100,10 +100,24 @@ label
   margin-right: 10px
   color: #fff
 
+#canvas-container
+  position: relative
+
 #canvas
+  position: absolute
   display: block
   margin-bottom: 20px
   cursor: pointer
+
+#canvas-alt
+  opacity: 0
+  .odd &
+    opacity: 1
+
+#canvas
+  opacity: 1
+  .odd &
+    opacity: 0
 
 #text
   background: none
