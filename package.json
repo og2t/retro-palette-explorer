@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "dev": "scripts/develop",
+    "build": "scripts/build"
+  },
+  "dependencies": {
+    "browser-sync": "^3.0.2",
+    "coffeescript": "^2.7.0",
+    "harp": "^0.46.1"
+  }
+}

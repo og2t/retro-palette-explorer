@@ -1,4 +1,8 @@
-html, body
+*
+  box-sizing: border-box
+  
+html,
+body
   margin: 0
   background: #222
   font-family: Arial
@@ -15,6 +19,21 @@ p,
 #downloadlink
   color: #ccc
   font-size: 12px
+  padding: 0.5rem
+
+#output
+  height: 50vh
+  padding: 10px
+  margin: 0
+  color: #fff
+  width: 100%
+  border: 0
+  outline: none
+  background: none
+  font-family: courier
+  font-weight: bold
+  font-size: 10px
+  overflow: scroll
 
 table
   background: #000
@@ -65,12 +84,12 @@ tr
     display: none
 
 // .dither
-//   border: 1px solid black
-//   animation: strobe 20ms steps(1, end) infinite
+  // border: 1px solid black
+  // animation: strobe 20ms steps(1, end) infinite
 
 // @keyframes strobe
-//   50%
-//     border: 1px solid white
+  // 50%
+    // border: 1px solid white
 
 select
   margin-bottom: 20px

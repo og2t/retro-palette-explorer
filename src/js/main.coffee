@@ -52,6 +52,7 @@ class Main
       @filter()
 
     @text = document.getElementById 'text'
+    @output = document.getElementById 'output'
 
     @slider = document.getElementById 'slider'
     @slider.oninput = (event) =>
@@ -64,6 +65,16 @@ class Main
     return
 
   createData: () ->
+    @output.value = '''
+; Paint.NET Palette File
+; Lines that start with a semicolon are comments
+; Colors are written as 8-digit hexadecimal numbers: aarrggbb
+; For example, this would specify green: FF00FF00
+; The alpha ('aa') value specifies how transparent a color is. FF is fully opaque, 00 is fully transparent.
+; A palette must consist of ninety six (96) colors. If there are less than this, the remaining color
+; slots will be set to white (FFFFFFFF). If there are more, then the remaining colors will be ignored.
+
+'''
     @mixed = []
     @json = []
     for index1 in [0..0xf]
@@ -131,11 +142,18 @@ class Main
           distToGreen: ColorUtils.getHEXDistance mix, ColorUtils.colorToHEX 0x00ff00
           distToBlue:  ColorUtils.getHEXDistance mix, ColorUtils.colorToHEX 0x0000ff
 
-        @json.push
-          index1: index1
-          index2: index2
-          mix: mix
+        # @json.push
+        #   index1: index1
+        #   index2: index2
+        #   mix: mix
 
+        @output.value += mix.split('#').join('ff').toUpperCase() + '\n'
+    # Add remaining rows
+    remainingRows = 96 - @mixed.length
+    if (remainingRows > 0)
+      for r in [0..remainingRows]
+        @output.value += 'FFFFFFFF' + '\n'
+    @json = @output.value
     return
 
 
@@ -150,7 +168,8 @@ class Main
     @fillTable()
     @drawColors()
     # @createGradient()
-    @print JSON.stringify @json
+    # @print JSON.stringify @json
+    @print @json
     return
 
 
@@ -227,10 +246,10 @@ class Main
       "RGB distance"
       "hue"
       "saturation"
-      "CBM luma"
-      "CBM luma diff"
       "luma"
       "luma diff"
+      "hex luma"
+      "hex luma diff"
       "hex value"
     ]
 
@@ -312,10 +331,10 @@ class Main
       row.insertCell(6).innerHTML = obj.distance.toFixed(0)
       row.insertCell(7).innerHTML = obj.h.toFixed(2)
       row.insertCell(8).innerHTML = obj.s.toFixed(2)
-      row.insertCell(9).innerHTML = obj.luma.toFixed(2)
+      row.insertCell(9).innerHTML = (obj.luma / 32).toFixed(2)
       row.insertCell(10).innerHTML = obj.diffLuma.toFixed(2)
       row.insertCell(11).innerHTML = obj.l.toFixed(2)
-      row.insertCell(12).innerHTML = obj.diffL.toFixed(2)
+      row.insertCell(12).innerHTML = obj.diffL.toFixed(4)
       row.insertCell(13).innerHTML = obj.mix
     return
 

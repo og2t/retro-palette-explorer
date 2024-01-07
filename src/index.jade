@@ -2,13 +2,21 @@ doctype html
 html
   head
     meta(charset='utf-8')
-    title Retro Palette Explorer
+    title C64 Palette Explorer
     link(rel='stylesheet', href='css/styles.css')
+    link(rel='stylesheet', href='css/collapsible.css')
   body
-    h1 Retro Palette Explorer v0.51
-    p by Digger/Elysium © 2016-17
+    h1 <strike>Retro</strike> C64 Palette Explorer v0.52
+    p by Digger/Elysium © 2016-24
 
     canvas#canvas
+
+    .collabsible-wrapper
+      input#collapsible.toggle(type='checkbox' checked='true')
+      label.lbl-toggle(for='collapsible' tabindex='0') Export
+      .collapsible-content
+        textarea#output
+        a#downloadlink(download='timanthes.txt' style='display: none') Download Timanthes palette
 
     label(for='sort') Sort by
     select#sort
@@ -52,6 +60,7 @@ html
       - paletteTypes.push({key: 'PICO-8', value: 'PICO8'})
       - paletteTypes.push({key: 'JamPal', value: 'JAMPAL'})
       - paletteTypes.push({key: 'Agony',  value: 'AGONY'})
+      - paletteTypes.push({key: 'Deekay', value: 'DEEKAY'})
       - paletteTypes.push({key: 'C64 HQ', value: 'C64_HQ'})
       each palette in paletteTypes
         option(value=palette.value) #{palette.key}
@@ -76,8 +85,6 @@ html
 
     input#swap(type='checkbox', name='swap', checked='true')
     label(for='swap') Align
-
-    a#downloadlink(download='colors.json' style='display: none') Download JSON
 
     table#table
 

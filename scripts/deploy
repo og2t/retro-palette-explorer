@@ -1,8 +1,0 @@
-#!/bin/bash
-rm -rf build
-cd src
-rm -rf www
-harp compile
-mv www ../build
-cd ../build
-python -m SimpleHTTPServer 8080
