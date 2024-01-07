@@ -1,1 +1,366 @@
-var Main,main;Main=function(){t.prototype.palette=Palettes.PEPTO;t.prototype.paletteType="PEPTO";t.prototype.sortBy=["luma"];t.prototype.lumaDiffThreshold=1;t.prototype.ditherType="noDither";t.prototype.excludeNative=false;t.prototype.scale=2;t.prototype.swap=true;t.prototype.stopLoop=false;function t(){this.canvas=document.getElementById("canvas");this.context=this.canvas.getContext("2d");this.canvas.addEventListener("click",function(t){return function(e){t.scale=t.scale===1?2:1;return t.filter()}}(this));this.excludeCheckbox=document.getElementById("exclude");this.excludeCheckbox.onchange=function(t){return function(e){t.excludeNative=e.target.checked;return t.filter()}}(this);this.swapCheckbox=document.getElementById("swap");this.swapCheckbox.onchange=function(t){return function(e){t.swap=e.target.checked;return t.filter()}}(this);this.sortSelect=document.getElementById("sort");this.sortSelect.onchange=function(t){return function(e){t.sortBy=e.target.options[e.target.selectedIndex].value.split(",");return t.filter()}}(this);this.ditherSelect=document.getElementById("dither");this.ditherSelect.onchange=function(t){return function(e){t.ditherType=e.target.options[e.target.selectedIndex].value;if(t.ditherType==="lace"){t.stopLoop=false;t.loop()}else{t.stopLoop=true}return t.filter()}}(this);this.paletteSelect=document.getElementById("palette");this.paletteSelect.onchange=function(t){return function(e){t.paletteType=e.target.options[e.target.selectedIndex].value;t.palette=Palettes[t.paletteType];return t.filter()}}(this);this.text=document.getElementById("text");this.slider=document.getElementById("slider");this.slider.oninput=function(t){return function(e){return t.text.value=e.target.value}}(this);this.slider.onchange=function(t){return function(e){t.lumaDiffThreshold=e.target.value;return t.filter()}}(this);this.filter();return}t.prototype.createData=function(){var t,e,i,l,o,s,n,r,a,c,h,d,u,f,p,C;this.mixed=[];this.json=[];for(r=c=0;c<=15;r=++c){for(a=h=p=r;p<=15?h<=15:h>=15;a=p<=15?++h:--h){t=ColorUtils.colorToHEX(this.palette[r]);i=ColorUtils.colorToHEX(this.palette[a]);f=(Palettes.lumaOrder.indexOf(r)+Palettes.lumaOrder.indexOf(a))/2;d=ColorUtils.mixHEX(t,i);u=ColorUtils.HEXtoHSL(d);e=ColorUtils.HEXtoHSL(t);l=ColorUtils.HEXtoHSL(i);n=ColorUtils.getHEXDistance(t,i);s=Math.abs(Palettes.lumas[r]-Palettes.lumas[a])/32;o=Math.abs(l.l-e.l);if(this.paletteType==="PICO8"){if(o>this.lumaDiffThreshold){continue}}else{if(s>this.lumaDiffThreshold){continue}}if(this.excludeNative&&t!==i){continue}if(this.swap){if(e.l>l.l){C=t;t=i;i=C}}this.mixed.push({h:u.h,s:u.s,l:u.l,mixIndex:f,luma:(Palettes.lumas[r]+Palettes.lumas[a])/2,diffH:Math.abs(l.h-e.h),diffS:Math.abs(l.s-e.s),diffL:o,diffLuma:s,distance:n,index1:r.toString(16),index2:a.toString(16),col1:t,col2:i,mix:d,distTo0:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[0])),distTo1:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[1])),distTo2:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[2])),distTo3:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[3])),distTo4:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[4])),distTo5:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[5])),distTo6:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[6])),distTo7:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[7])),distTo8:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[8])),distTo9:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[9])),distToA:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[10])),distToB:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[11])),distToC:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[12])),distToD:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[13])),distToE:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[14])),distToF:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(this.palette[15])),distToRed:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(16711680)),distToGreen:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(65280)),distToBlue:ColorUtils.getHEXDistance(d,ColorUtils.colorToHEX(255))});this.json.push({index1:r,index2:a,mix:d})}}};t.prototype.filter=function(){if(this.paletteType==="PICO8"){this.sortBy=this.sortBy.join(",").replace("luma","l").split(",")}this.createData();if(this.sortBy.length>0){this.mixed.sort(SortUtils.dynamicMultiSort(this.sortBy))}this.createTable();this.fillTable();this.drawColors();this.print(JSON.stringify(this.json))};t.prototype.print=function(t){FileSaver.saveAsTextFile(t)};t.prototype.drawColors=function(){var t,e,i,l,o,s,n;o=8;this.context.fillStyle="#000";this.canvas.width=17*o*this.scale;this.canvas.height=8*o*this.scale;HDPI.detectAndSetRatio(this.canvas);this.context.imageSmoothingEnabled=false;this.context.fillRect(0,0,this.canvas.width,this.canvas.height);s=0;n=0;l=this.mixed;for(t=0,e=l.length;t<e;t++){i=l[t];this[this.ditherType](this.canvas,i.col1,i.col2,o,o,s*o,n*o);s++;if(s>16){s=0;n++}}};t.prototype.createGradient=function(){var t,e,i,l,o,s,n,r,a,c,h,d;h=[];c=this.mixed.length;i=4096/(c-1);o=[];d=this.mixed;for(n=r=0,a=d.length;r<a;n=++r){t=d[n];e=ColorUtils.HEXtoRGBObject(t.mix);l={midpoint:50,type:"userStop",location:Math.round(n*i),color:{red:e.r,green:e.g,blue:e.b}};o.push(l)}s={name:"["+c+"]",gradientForm:"customStops",interpolation:4096,colors:o};h.push(s);log(JSON.stringify(h));this.print(JSON.stringify(h))};t.prototype.createTable=function(){var t,e,i,l,o,s,n;this.table=document.getElementById("table");while(this.table.firstChild){this.table.removeChild(this.table.firstChild)}e=["#","mixed","color1","color2","color1","color2","RGB distance","hue","saturation","CBM luma","CBM luma diff","luma","luma diff","hex value"];i=this.table.createTHead();n=i.insertRow(0);for(l=o=0,s=e.length;o<s;l=++o){t=e[l];n.insertCell(l).innerHTML=t}};t.prototype.noDither=function(t,e,i,l,o,s,n){var r,a;if(s==null){s=0}if(n==null){n=0}a=ColorUtils.mixHEX(e,i);r=t.getContext("2d");r.fillStyle=a;r.fillRect(s*this.scale,n*this.scale,l*this.scale,o*this.scale)};t.prototype.lace=function(t,e,i,l,o,s,n){var r,a;if(s==null){s=0}if(n==null){n=0}a=ColorUtils.mixHEX(e,i);r=t.getContext("2d");r.fillStyle=a;r.fillRect(s*this.scale,n*this.scale,l*this.scale,o*this.scale)};t.prototype.hiresDither=function(t,e,i,l,o,s,n){var r,a,c,h,d,u,f;if(s==null){s=0}if(n==null){n=0}r=t.getContext("2d");for(u=a=0,h=l;0<=h?a<h:a>h;u=0<=h?++a:--a){for(f=c=0,d=o;0<=d?c<d:c>d;f=0<=d?++c:--c){r.fillStyle=f%2?u%2?e:i:u%2?i:e;r.fillRect((u+s)*this.scale,(f+n)*this.scale,this.scale,this.scale)}}};t.prototype.lineDither=function(t,e,i,l,o,s,n){var r,a,c,h;if(s==null){s=0}if(n==null){n=0}r=t.getContext("2d");for(h=a=0,c=o;0<=c?a<c:a>c;h=0<=c?++a:--a){r.fillStyle=h%2?e:i;r.fillRect(s*this.scale,(h+n)*this.scale,l*this.scale,this.scale)}};t.prototype.multiDither=function(t,e,i,l,o,s,n){var r,a,c,h,d,u,f;if(s==null){s=0}if(n==null){n=0}r=t.getContext("2d");for(u=a=0,h=l;0<=h?a<h:a>h;u=0<=h?++a:--a){for(f=c=0,d=o;0<=d?c<d:c>d;f=0<=d?++c:--c){r.fillStyle=f%2?Math.ceil((u+1)/2)%2?e:i:Math.ceil((u+1)/2)%2?i:e;r.fillRect((u+s)*this.scale,(f+n)*this.scale,this.scale,this.scale)}}};t.prototype.fillTable=function(){var t,e,i,l,o,s,n,r,a,c;i=16;t=this.table.createTBody();a=this.mixed;for(o=s=0,n=a.length;s<n;o=++s){r=a[o];c=t.insertRow(o);c.insertCell(0).innerHTML=o+1;if(this.ditherType==="noDither"){c.insertCell(1).innerHTML="<div class='cell' style='background: "+r.mix+";'/>"}else if(this.ditherType==="lace"){c.insertCell(1).innerHTML="<div class='cell'><div class='cell-odd' style='background: "+r.col1+";'></div><div class='cell-even' style='background: "+r.col2+";'></div></div>"}else{c.insertCell(1).innerHTML="<canvas class='dither' width='"+i+"' height='"+i+"' id='canvas-"+o+"'/>";e=document.getElementById("canvas-"+o);HDPI.detectAndSetRatio(e);l=e.getContext("2d");this[this.ditherType](e,r.col1,r.col2,i/this.scale,i/this.scale)}c.insertCell(2).innerHTML=r.index1;c.insertCell(3).innerHTML=r.index2;c.insertCell(4).innerHTML="<div class='cell' style='background: "+r.col1+"'/>";c.insertCell(5).innerHTML="<div class='cell' style='background: "+r.col2+"'/>";c.insertCell(6).innerHTML=r.distance.toFixed(0);c.insertCell(7).innerHTML=r.h.toFixed(2);c.insertCell(8).innerHTML=r.s.toFixed(2);c.insertCell(9).innerHTML=r.luma.toFixed(2);c.insertCell(10).innerHTML=r.diffLuma.toFixed(2);c.insertCell(11).innerHTML=r.l.toFixed(2);c.insertCell(12).innerHTML=r.diffL.toFixed(2);c.insertCell(13).innerHTML=r.mix}};t.prototype.loop=function(){this.table.classList.toggle("odd");if(this.stopLoop){return}requestAnimationFrame(function(t){return function(){return t.loop()}}(this))};return t}();main=new Main;
+var Main, main;
+
+Main = (function() {
+  class Main {
+    constructor() {
+      this.canvas = document.getElementById('canvas');
+      this.context = this.canvas.getContext('2d');
+      this.canvas.addEventListener('click', (event) => {
+        this.scale = this.scale === 1 ? 2 : 1;
+        return this.filter();
+      });
+      this.excludeCheckbox = document.getElementById('exclude');
+      this.excludeCheckbox.onchange = (event) => {
+        this.excludeNative = event.target.checked;
+        return this.filter();
+      };
+      this.swapCheckbox = document.getElementById('swap');
+      this.swapCheckbox.onchange = (event) => {
+        this.swap = event.target.checked;
+        return this.filter();
+      };
+      this.sortSelect = document.getElementById('sort');
+      this.sortSelect.onchange = (event) => {
+        this.sortBy = event.target.options[event.target.selectedIndex].value.split(',');
+        return this.filter();
+      };
+      this.ditherSelect = document.getElementById('dither');
+      this.ditherSelect.onchange = (event) => {
+        this.ditherType = event.target.options[event.target.selectedIndex].value;
+        if (this.ditherType === 'lace') {
+          this.stopLoop = false;
+          this.loop();
+        } else {
+          this.stopLoop = true;
+        }
+        return this.filter();
+      };
+      this.paletteSelect = document.getElementById('palette');
+      this.paletteSelect.onchange = (event) => {
+        this.paletteType = event.target.options[event.target.selectedIndex].value;
+        this.palette = Palettes[this.paletteType];
+        return this.filter();
+      };
+      this.text = document.getElementById('text');
+      this.output = document.getElementById('output');
+      this.slider = document.getElementById('slider');
+      this.slider.oninput = (event) => {
+        return this.text.value = event.target.value;
+      };
+      this.slider.onchange = (event) => {
+        this.lumaDiffThreshold = event.target.value;
+        return this.filter();
+      };
+      this.filter();
+      return;
+    }
+
+    createData() {
+      var col1, col1HSL, col2, col2HSL, diffL, diffLuma, distance, index1, index2, j, k, l, mix, mixHSL, mixIndex, r, ref, ref1, remainingRows, temp;
+      this.output.value = `; Paint.NET Palette File
+; Lines that start with a semicolon are comments
+; Colors are written as 8-digit hexadecimal numbers: aarrggbb
+; For example, this would specify green: FF00FF00
+; The alpha ('aa') value specifies how transparent a color is. FF is fully opaque, 00 is fully transparent.
+; A palette must consist of ninety six (96) colors. If there are less than this, the remaining color
+; slots will be set to white (FFFFFFFF). If there are more, then the remaining colors will be ignored.
+`;
+      this.mixed = [];
+      this.json = [];
+      for (index1 = j = 0; j <= 15; index1 = ++j) {
+        for (index2 = k = ref = index1; (ref <= 0xf ? k <= 0xf : k >= 0xf); index2 = ref <= 0xf ? ++k : --k) {
+          col1 = ColorUtils.colorToHEX(this.palette[index1]);
+          col2 = ColorUtils.colorToHEX(this.palette[index2]);
+          mixIndex = (Palettes.lumaOrder.indexOf(index1) + Palettes.lumaOrder.indexOf(index2)) / 2;
+          mix = ColorUtils.mixHEX(col1, col2);
+          mixHSL = ColorUtils.HEXtoHSL(mix);
+          col1HSL = ColorUtils.HEXtoHSL(col1);
+          col2HSL = ColorUtils.HEXtoHSL(col2);
+          distance = ColorUtils.getHEXDistance(col1, col2);
+          diffLuma = Math.abs(Palettes.lumas[index1] - Palettes.lumas[index2]) / 32;
+          diffL = Math.abs(col2HSL.l - col1HSL.l);
+          if (this.paletteType === 'PICO8') {
+            if (diffL > this.lumaDiffThreshold) {
+              continue;
+            }
+          } else {
+            if (diffLuma > this.lumaDiffThreshold) {
+              continue;
+            }
+          }
+          // if @excludeNative and (col1 is col2) then continue
+          if (this.excludeNative && (col1 !== col2)) {
+            continue;
+          }
+          if (this.swap) {
+            // Switch colors
+            if (col1HSL.l > col2HSL.l) {
+              temp = col1;
+              col1 = col2;
+              col2 = temp;
+            }
+          }
+          this.mixed.push({
+            h: mixHSL.h,
+            s: mixHSL.s,
+            l: mixHSL.l,
+            mixIndex: mixIndex,
+            luma: (Palettes.lumas[index1] + Palettes.lumas[index2]) / 2,
+            diffH: Math.abs(col2HSL.h - col1HSL.h),
+            diffS: Math.abs(col2HSL.s - col1HSL.s),
+            diffL: diffL,
+            diffLuma: diffLuma,
+            distance: distance,
+            index1: index1.toString(16),
+            index2: index2.toString(16),
+            col1: col1,
+            col2: col2,
+            mix: mix,
+            distTo0: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0x0])),
+            distTo1: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0x1])),
+            distTo2: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0x2])),
+            distTo3: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0x3])),
+            distTo4: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0x4])),
+            distTo5: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0x5])),
+            distTo6: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0x6])),
+            distTo7: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0x7])),
+            distTo8: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0x8])),
+            distTo9: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0x9])),
+            distToA: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0xA])),
+            distToB: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0xB])),
+            distToC: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0xC])),
+            distToD: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0xD])),
+            distToE: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0xE])),
+            distToF: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(this.palette[0xF])),
+            distToRed: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(0xff0000)),
+            distToGreen: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(0x00ff00)),
+            distToBlue: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(0x0000ff))
+          });
+          // @json.push
+          //   index1: index1
+          //   index2: index2
+          //   mix: mix
+          this.output.value += mix.split('#').join('ff').toUpperCase() + '\n';
+        }
+      }
+      // Add remaining rows
+      remainingRows = 96 - this.mixed.length;
+      if (remainingRows > 0) {
+        for (r = l = 0, ref1 = remainingRows; (0 <= ref1 ? l <= ref1 : l >= ref1); r = 0 <= ref1 ? ++l : --l) {
+          this.output.value += 'FFFFFFFF' + '\n';
+        }
+      }
+      this.json = this.output.value;
+    }
+
+    filter() {
+      if (this.paletteType === 'PICO8') {
+        this.sortBy = this.sortBy.join(',').replace('luma', 'l').split(',');
+      }
+      this.createData();
+      this.sortBy.unshift('diffLuma');
+      if (this.sortBy.length > 0) {
+        this.mixed.sort(SortUtils.dynamicMultiSort(this.sortBy));
+      }
+      this.createTable();
+      this.fillTable();
+      this.drawColors();
+      // @createGradient()
+      // @print JSON.stringify @json
+      this.print(this.json);
+    }
+
+    print(buffer) {
+      FileSaver.saveAsTextFile(buffer);
+    }
+
+    drawColors() {
+      var j, len, obj, ref, size, x, y;
+      size = 8;
+      this.context.fillStyle = '#000';
+      this.canvas.width = 17 * size * this.scale;
+      this.canvas.height = 8 * size * this.scale;
+      HDPI.detectAndSetRatio(this.canvas);
+      this.context.imageSmoothingEnabled = false;
+      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      x = 0;
+      y = 0;
+      ref = this.mixed;
+      for (j = 0, len = ref.length; j < len; j++) {
+        obj = ref[j];
+        this[this.ditherType](this.canvas, obj.col1, obj.col2, size, size, x * size, y * size);
+        x++;
+        if (x > 16) {
+          x = 0;
+          y++;
+        }
+      }
+    }
+
+    // Didn't make sense
+    createGradient() {
+      var colorObj, colorRGB, colorRange, colorStop, colors, gradientTemplate, index, j, len, numColors, output, ref;
+      output = [];
+      numColors = this.mixed.length;
+      colorRange = 4096 / (numColors - 1);
+      colors = [];
+      ref = this.mixed;
+      for (index = j = 0, len = ref.length; j < len; index = ++j) {
+        colorObj = ref[index];
+        colorRGB = ColorUtils.HEXtoRGBObject(colorObj.mix);
+        colorStop = {
+          midpoint: 50,
+          type: 'userStop',
+          location: Math.round(index * colorRange),
+          color: {
+            red: colorRGB.r,
+            green: colorRGB.g,
+            blue: colorRGB.b
+          }
+        };
+        colors.push(colorStop);
+      }
+      gradientTemplate = {
+        name: `[${numColors}]`,
+        gradientForm: 'customStops',
+        interpolation: 4096,
+        colors: colors
+      };
+      output.push(gradientTemplate);
+      log(JSON.stringify(output));
+      this.print(JSON.stringify(output));
+    }
+
+    createTable() {
+      var field, fields, header, i, j, len, row;
+      this.table = document.getElementById('table');
+      while (this.table.firstChild) {
+        this.table.removeChild(this.table.firstChild);
+      }
+      fields = ["#", "mixed", "color1", "color2", "color1", "color2", "RGB distance", "hue", "saturation", "luma", "luma diff", "hex luma", "hex luma diff", "hex value"];
+      header = this.table.createTHead();
+      row = header.insertRow(0);
+      for (i = j = 0, len = fields.length; j < len; i = ++j) {
+        field = fields[i];
+        row.insertCell(i).innerHTML = field;
+      }
+    }
+
+    noDither(canvas, col1, col2, w, h, offsetX = 0, offsetY = 0) {
+      var context, mix;
+      mix = ColorUtils.mixHEX(col1, col2);
+      context = canvas.getContext('2d');
+      context.fillStyle = mix;
+      context.fillRect(offsetX * this.scale, offsetY * this.scale, w * this.scale, h * this.scale);
+    }
+
+    lace(canvas, col1, col2, w, h, offsetX = 0, offsetY = 0) {
+      var context, mix;
+      mix = ColorUtils.mixHEX(col1, col2);
+      context = canvas.getContext('2d');
+      context.fillStyle = mix;
+      context.fillRect(offsetX * this.scale, offsetY * this.scale, w * this.scale, h * this.scale);
+    }
+
+    hiresDither(canvas, col1, col2, w, h, offsetX = 0, offsetY = 0) {
+      var context, j, k, ref, ref1, x, y;
+      context = canvas.getContext('2d');
+      for (x = j = 0, ref = w; (0 <= ref ? j < ref : j > ref); x = 0 <= ref ? ++j : --j) {
+        for (y = k = 0, ref1 = h; (0 <= ref1 ? k < ref1 : k > ref1); y = 0 <= ref1 ? ++k : --k) {
+          context.fillStyle = y % 2 ? x % 2 ? col1 : col2 : x % 2 ? col2 : col1;
+          context.fillRect((x + offsetX) * this.scale, (y + offsetY) * this.scale, this.scale, this.scale);
+        }
+      }
+    }
+
+    lineDither(canvas, col1, col2, w, h, offsetX = 0, offsetY = 0) {
+      var context, j, ref, y;
+      context = canvas.getContext('2d');
+      for (y = j = 0, ref = h; (0 <= ref ? j < ref : j > ref); y = 0 <= ref ? ++j : --j) {
+        context.fillStyle = y % 2 ? col1 : col2;
+        context.fillRect(offsetX * this.scale, (y + offsetY) * this.scale, w * this.scale, this.scale);
+      }
+    }
+
+    multiDither(canvas, col1, col2, w, h, offsetX = 0, offsetY = 0) {
+      var context, j, k, ref, ref1, x, y;
+      context = canvas.getContext('2d');
+      for (x = j = 0, ref = w; (0 <= ref ? j < ref : j > ref); x = 0 <= ref ? ++j : --j) {
+        for (y = k = 0, ref1 = h; (0 <= ref1 ? k < ref1 : k > ref1); y = 0 <= ref1 ? ++k : --k) {
+          context.fillStyle = y % 2 ? Math.ceil((x + 1) / 2) % 2 ? col1 : col2 : Math.ceil((x + 1) / 2) % 2 ? col2 : col1;
+          context.fillRect((x + offsetX) * this.scale, (y + offsetY) * this.scale, this.scale, this.scale);
+        }
+      }
+    }
+
+    fillTable() {
+      var body, canvas, cellSize, context, i, j, len, obj, ref, row;
+      cellSize = 16;
+      body = this.table.createTBody();
+      ref = this.mixed;
+      for (i = j = 0, len = ref.length; j < len; i = ++j) {
+        obj = ref[i];
+        row = body.insertRow(i);
+        row.insertCell(0).innerHTML = i + 1;
+        if (this.ditherType === 'noDither') {
+          row.insertCell(1).innerHTML = `<div class='cell' style='background: ${obj.mix};'/>`;
+        } else if (this.ditherType === 'lace') {
+          row.insertCell(1).innerHTML = `<div class='cell'><div class='cell-odd' style='background: ${obj.col1};'></div><div class='cell-even' style='background: ${obj.col2};'></div></div>`;
+        } else {
+          row.insertCell(1).innerHTML = `<canvas class='dither' width='${cellSize}' height='${cellSize}' id='canvas-${i}'/>`;
+          canvas = document.getElementById(`canvas-${i}`);
+          HDPI.detectAndSetRatio(canvas);
+          context = canvas.getContext('2d');
+          this[this.ditherType](canvas, obj.col1, obj.col2, cellSize / this.scale, cellSize / this.scale);
+        }
+        row.insertCell(2).innerHTML = obj.index1;
+        row.insertCell(3).innerHTML = obj.index2;
+        row.insertCell(4).innerHTML = `<div class='cell' style='background: ${obj.col1}'/>`;
+        row.insertCell(5).innerHTML = `<div class='cell' style='background: ${obj.col2}'/>`;
+        row.insertCell(6).innerHTML = obj.distance.toFixed(0);
+        row.insertCell(7).innerHTML = obj.h.toFixed(2);
+        row.insertCell(8).innerHTML = obj.s.toFixed(2);
+        row.insertCell(9).innerHTML = (obj.luma / 32).toFixed(2);
+        row.insertCell(10).innerHTML = obj.diffLuma.toFixed(2);
+        row.insertCell(11).innerHTML = obj.l.toFixed(2);
+        row.insertCell(12).innerHTML = obj.diffL.toFixed(4);
+        row.insertCell(13).innerHTML = obj.mix;
+      }
+    }
+
+    loop() {
+      this.table.classList.toggle('odd');
+      if (this.stopLoop) {
+        return;
+      }
+      requestAnimationFrame(() => {
+        return this.loop();
+      });
+    }
+
+  };
+
+  Main.prototype.palette = Palettes.PEPTO;
+
+  Main.prototype.paletteType = 'PEPTO';
+
+  Main.prototype.sortBy = ['luma'];
+
+  Main.prototype.lumaDiffThreshold = 1;
+
+  Main.prototype.ditherType = 'noDither';
+
+  Main.prototype.excludeNative = false;
+
+  Main.prototype.scale = 2;
+
+  Main.prototype.swap = true;
+
+  Main.prototype.stopLoop = false;
+
+  return Main;
+
+}).call(this);
+
+// Bootstrap
+main = new Main();

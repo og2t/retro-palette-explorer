@@ -1,1 +1,230 @@
-var ColorUtils;ColorUtils=function(){function r(){}r.colorToHEX=function(r){return"#"+("000000"+r.toString(16)).substr(-6)};r.colorToRGB=function(r){return{r:r>>16&255,g:r>>8&255,b:r&255}};r.colorToRGBArray=function(r){var t;t=this.colorToRGB(r);return[t.r,t.g,t.b]};r.colorToRGBString=function(r){return"rgb("+this.colorToRGBArray(r).join(",")+")"};r.RGBToColor=function(r,t,o){return(r<<16)+(t<<8)+o};r.mixColors=function(r,t){var o,n,i,e,u;e=this.colorToRGB(r);u=this.colorToRGB(t);i=Math.floor((e.r+u.r)/2);n=Math.floor((e.g+u.g)/2);o=Math.floor((e.b+u.b)/2);return this.RGBToColor(i,n,o)};r.getColorSimilarity=function(r,t){var o,n,i,e,u;e=this.colorToRGB(r);u=this.colorToRGB(t);i=(u.r-e.r)*(u.r-e.r);n=(u.g-e.g)*(u.g-e.g);o=(u.b-e.b)*(u.b-e.b);return 1-Math.sqrt(i+n+o)/441.6729559300637};r.getNearestColorIndex=function(r,t){var o,n,i,e,u,c,a,h,f,s,B,G,R;B=r>>16&255;u=r>>8&255;n=r&255;f=4096;s=0;o=t.length;for(a=h=0,R=o;0<=R?h<=R:h>=R;a=0<=R?++h:--h){G=t[a]>>16&255;c=t[a]>>8&255;i=t[a]&255;e=(G-B)*(G-B)+(c-u)*(c-u)+(i-n)*(i-n);e=Math.sqrt(e);if(e<f){f=e;s=a}}return s};r.RGBtoHEX=function(r,t,o){return"#"+((1<<24)+(r<<16)+(t<<8)+o).toString(16).slice(1)};r.RGBtoHSL=function(r,t,o){var n,i,e,u,c,a;r/=255;t/=255;o/=255;u=Math.max(r,t,o);c=Math.min(r,t,o);i=(u+c)/2;a=(u+c)/2;e=(u+c)/2;if(u===c){i=a=0}else{n=u-c;a=e>.5?n/(2-u-c):n/(u+c);switch(u){case r:i=(t-o)/n+(t<o?6:0);break;case t:i=(o-r)/n+2;break;case o:i=(r-t)/n+4}i/=6}return{h:i,s:a,l:e}};r.hueToRGB=function(r,t,o){if(o<0){o+=1}if(o>1){o-=1}if(o<1/6){return r+(t-r)*6*o}if(o<1/2){return t}if(o<2/3){return r+(t-r)*(2/3-o)*6}return r};r.HSLtoRGB=function(r,t,o){var n,i,e,u,c;if(t===0){c=i=n=o}else{u=o<.5?o*(1+t):o+t-o*t;e=2*o-u;r=r/360;c=this.hueToRGB(e,u,r+1/3);i=this.hueToRGB(e,u,r);n=this.hueToRGB(e,u,r-1/3)}return[c*255,i*255,n*255]};r.HSLtoRGBArray=function(r,t,o){return HSLtoRGB(r,t,o)};r.HSLtoRGBObject=function(r,t,o){var n;n=this.HSLtoRGB(r,t,o);return{r:n[0],g:n[1],b:n[2]}};r.HSLtoRGBString=function(r,t,o){var n;n=this.HSLtoRGB(r,t,o);return[Math.floor(n[0]),Math.floor(n[1]),Math.floor(n[2])].join(",")};r.HEXtoHSL=function(r){var t;t=this.HEXtoRGBObject(r);return this.RGBtoHSL(t.r,t.g,t.b)};r.HEXtoRGBArray=function(r){var t,o,n,i;o=parseInt(r.replace("#",""),16);i=o>>16&255;n=o>>8&255;t=o&255;return[i,n,t]};r.getHEXDistance=function(r,t){var o,n,i,e,u;e=this.HEXtoRGBObject(r);u=this.HEXtoRGBObject(t);i=(u.r-e.r)*(u.r-e.r);n=(u.g-e.g)*(u.g-e.g);o=(u.b-e.b)*(u.b-e.b);return Math.sqrt(i+n+o)};r.HEXtoRGBObject=function(r){var t;t=this.HEXtoRGBArray(r);return{r:t[0],g:t[1],b:t[2]}};r.mixHEX=function(r,t){var o,n,i,e,u;e=this.HEXtoRGBObject(r);u=this.HEXtoRGBObject(t);i=Math.floor((e.r+u.r)/2);n=Math.floor((e.g+u.g)/2);o=Math.floor((e.b+u.b)/2);return this.RGBtoHEX(i,n,o)};r.HEXtoRGBString=function(r){return"rgb("+this.HEXtoRGBArray(r).join(",")+")"};return r}();
+var ColorUtils;
+
+ColorUtils = class ColorUtils {
+  /*
+   * Color (value)
+   */
+  static colorToHEX(color) {
+    return '#' + ("000000" + color.toString(16)).substr(-6);
+  }
+
+  // Converts numeric value into r, g, b object
+  static colorToRGB(color) {
+    return {
+      r: color >> 16 & 0xff,
+      g: color >> 8 & 0xff,
+      b: color & 0xff
+    };
+  }
+
+  static colorToRGBArray(color) {
+    var rgb;
+    rgb = this.colorToRGB(color);
+    return [rgb.r, rgb.g, rgb.b];
+  }
+
+  static colorToRGBString(color) {
+    return `rgb(${this.colorToRGBArray(color).join(',')})`;
+  }
+
+  static RGBToColor(r, g, b) {
+    return (r << 16) + (g << 8) + b;
+  }
+
+  // Mixes two colors
+  static mixColors(color1, color2) {
+    var b, g, r, rgb1, rgb2;
+    rgb1 = this.colorToRGB(color1);
+    rgb2 = this.colorToRGB(color2);
+    r = Math.floor((rgb1.r + rgb2.r) / 2);
+    g = Math.floor((rgb1.g + rgb2.g) / 2);
+    b = Math.floor((rgb1.b + rgb2.b) / 2);
+    return this.RGBToColor(r, g, b);
+  }
+
+  // Returns distance between two colors [0..1]
+  // The more similar, the closer to 1
+  static getColorSimilarity(color1, color2) {
+    var b, g, r, rgb1, rgb2;
+    rgb1 = this.colorToRGB(color1);
+    rgb2 = this.colorToRGB(color2);
+    r = (rgb2.r - rgb1.r) * (rgb2.r - rgb1.r);
+    g = (rgb2.g - rgb1.g) * (rgb2.g - rgb1.g);
+    b = (rgb2.b - rgb1.b) * (rgb2.b - rgb1.b);
+    return 1 - Math.sqrt(r + g + b) / 441.6729559300637;
+  }
+
+  static getNearestColorIndex(hex, array) {
+    var arrayLength, b1, b2, distance, g1, g2, i, j, minDistance, nearestColor, r1, r2, ref;
+    r1 = hex >> 16 & 0xff;
+    g1 = hex >> 8 & 0xff;
+    b1 = hex & 0xff;
+    minDistance = 0x1000;
+    nearestColor = 0;
+    arrayLength = array.length;
+    for (i = j = 0, ref = arrayLength; (0 <= ref ? j <= ref : j >= ref); i = 0 <= ref ? ++j : --j) {
+      r2 = array[i] >> 16 & 0xff;
+      g2 = array[i] >> 8 & 0xff;
+      b2 = array[i] & 0xff;
+      distance = (r2 - r1) * (r2 - r1) + (g2 - g1) * (g2 - g1) + (b2 - b1) * (b2 - b1);
+      distance = Math.sqrt(distance);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestColor = i;
+      }
+    }
+    return nearestColor;
+  }
+
+  /*
+   * RGB
+   */
+  static RGBtoHEX(r, g, b) {
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  }
+
+  static RGBtoHSL(r, g, b) {
+    var d, h, l, max, min, s;
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    max = Math.max(r, g, b);
+    min = Math.min(r, g, b);
+    h = (max + min) / 2;
+    s = (max + min) / 2;
+    l = (max + min) / 2;
+    if (max === min) {
+      h = s = 0; // achromatic
+    } else {
+      d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0);
+          break;
+        case g:
+          h = (b - r) / d + 2;
+          break;
+        case b:
+          h = (r - g) / d + 4;
+      }
+      h /= 6;
+    }
+    return {
+      h: h,
+      s: s,
+      l: l
+    };
+  }
+
+  /*
+   * HSL
+   */
+  static hueToRGB(p, q, t) {
+    if (t < 0) {
+      t += 1;
+    }
+    if (t > 1) {
+      t -= 1;
+    }
+    if (t < 1 / 6) {
+      return p + (q - p) * 6 * t;
+    }
+    if (t < 1 / 2) {
+      return q;
+    }
+    if (t < 2 / 3) {
+      return p + (q - p) * (2 / 3 - t) * 6;
+    }
+    return p;
+  }
+
+  static HSLtoRGB(h, s, l) {
+    var b, g, p, q, r;
+    if (s === 0) {
+      // Monochromatic
+      r = g = b = l;
+    } else {
+      q = (l < 0.5 ? l * (1 + s) : l + s - l * s);
+      p = 2 * l - q;
+      h = h / 360;
+      r = this.hueToRGB(p, q, h + 1 / 3);
+      g = this.hueToRGB(p, q, h);
+      b = this.hueToRGB(p, q, h - 1 / 3);
+    }
+    return [r * 255, g * 255, b * 255];
+  }
+
+  static HSLtoRGBArray(h, s, l) {
+    return HSLtoRGB(h, s, l);
+  }
+
+  static HSLtoRGBObject(h, s, l) {
+    var result;
+    result = this.HSLtoRGB(h, s, l);
+    return {
+      r: result[0],
+      g: result[1],
+      b: result[2]
+    };
+  }
+
+  static HSLtoRGBString(h, s, l) {
+    var rgb;
+    rgb = this.HSLtoRGB(h, s, l);
+    return [Math.floor(rgb[0]), Math.floor(rgb[1]), Math.floor(rgb[2])].join(',');
+  }
+
+  /*
+   * HEX
+   */
+  static HEXtoHSL(hex) {
+    var rgb;
+    rgb = this.HEXtoRGBObject(hex);
+    return this.RGBtoHSL(rgb.r, rgb.g, rgb.b);
+  }
+
+  static HEXtoRGBArray(hex) {
+    var b, color, g, r;
+    color = parseInt(hex.replace('#', ''), 16);
+    r = color >> 16 & 0xff;
+    g = color >> 8 & 0xff;
+    b = color & 0xff;
+    return [r, g, b];
+  }
+
+  static getHEXDistance(hex1, hex2) {
+    var b, g, r, rgb1, rgb2;
+    rgb1 = this.HEXtoRGBObject(hex1);
+    rgb2 = this.HEXtoRGBObject(hex2);
+    r = (rgb2.r - rgb1.r) * (rgb2.r - rgb1.r);
+    g = (rgb2.g - rgb1.g) * (rgb2.g - rgb1.g);
+    b = (rgb2.b - rgb1.b) * (rgb2.b - rgb1.b);
+    return Math.sqrt(r + g + b);
+  }
+
+  static HEXtoRGBObject(hex) {
+    var result;
+    result = this.HEXtoRGBArray(hex);
+    return {
+      r: result[0],
+      g: result[1],
+      b: result[2]
+    };
+  }
+
+  static mixHEX(hex1, hex2) {
+    var b, g, r, rgb1, rgb2;
+    rgb1 = this.HEXtoRGBObject(hex1);
+    rgb2 = this.HEXtoRGBObject(hex2);
+    r = Math.floor((rgb1.r + rgb2.r) / 2);
+    g = Math.floor((rgb1.g + rgb2.g) / 2);
+    b = Math.floor((rgb1.b + rgb2.b) / 2);
+    return this.RGBtoHEX(r, g, b);
+  }
+
+  static HEXtoRGBString(hex) {
+    return `rgb(${this.HEXtoRGBArray(hex).join(',')})`;
+  }
+
+};

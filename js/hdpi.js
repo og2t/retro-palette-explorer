@@ -1,1 +1,26 @@
-var HDPI;HDPI=function(){function t(){}t.detectAndSetRatio=function(t){var i,e,o,n,a,c;e=t.getContext("2d");o=window.devicePixelRatio||1;i=e.webkitBackingStorePixelRatio||e.mozBackingStorePixelRatio||e.msBackingStorePixelRatio||e.oBackingStorePixelRatio||e.backingStorePixelRatio||1;c=o/i;if(o!==i){a=t.width;n=t.height;t.width=a*c;t.height=n*c;t.style.width=a+"px";t.style.height=n+"px";e.scale(c,c)}return c};return t}();
+var HDPI;
+
+HDPI = class HDPI {
+  static detectAndSetRatio(canvas) {
+    var backingStoreRatio, context, devicePixelRatio, oldHeight, oldWidth, ratio;
+    // query the various pixel ratios
+    context = canvas.getContext('2d');
+    devicePixelRatio = window.devicePixelRatio || 1;
+    backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
+    // Find the ratio
+    ratio = devicePixelRatio / backingStoreRatio;
+    // Upscale the canvas if ratios don't match
+    if (devicePixelRatio !== backingStoreRatio) {
+      oldWidth = canvas.width;
+      oldHeight = canvas.height;
+      canvas.width = oldWidth * ratio;
+      canvas.height = oldHeight * ratio;
+      canvas.style.width = oldWidth + "px";
+      canvas.style.height = oldHeight + "px";
+      // Now scale the context to counter the fact that we've manually scaled our canvas element
+      context.scale(ratio, ratio);
+    }
+    return ratio;
+  }
+
+};
