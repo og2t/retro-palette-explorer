@@ -7,10 +7,9 @@ html
     link(rel='stylesheet', href='css/collapsible.css')
     link(rel='stylesheet', href='css/image-drop.css')
   body
-    h1 <strike>Retro</strike> C64 Palette Explorer v0.6.0
+    h1 <strike>Retro</strike> C64 Palette Explorer v0.6.1
     p by Digger/Elysium © 2016-24
 
-   
     .side-panel
       input#collapsible-preview.toggle(type='checkbox' checked)
       label.lbl-toggle(for='collapsible-preview' tabindex='0') Preview
@@ -36,17 +35,26 @@ html
             style="display:none"
             onChange="FileUpload.handleFileSelect(event)"
           )
-        img#image-preview(alt="Image Preview", style="display:none")
+        #image-container
+          img#image-preview(alt="Image Preview", style="display:none")
+          canvas#image-1
+          canvas#image-2
 
       input#collapsible.toggle(type='checkbox')
-      label.lbl-toggle(for='collapsible' tabindex='0') Palette export
+      label.lbl-toggle(for='collapsible' tabindex='0') Palette export 
+        label(for='palette') Format&nbsp;
+          select#palette
+            - var paletteFormats = []
+            - paletteFormats.push({key: 'Timanthes',  value: 'TIMANTHES'})
+            each palette in paletteFormats
+              option(value=palette.value) #{palette.key}
       .collapsible-content
         textarea#output
         a#downloadlink(download='timanthes.txt' style='display: none') Download Timanthes palette
 
     
 
-    label(for='sort') Sort by
+    label(for='sort') Sort by&nbsp;
     select#sort
       - var options = []
       - options.push({key: 'Unsorted',                  value: ''})
@@ -81,7 +89,7 @@ html
       each sort in options
         option(value=sort.value, selected=sort.selected) #{sort.key}
 
-    label(for='palette') Palette
+    label(for='palette') Palette&nbsp;
     select#palette
       - var paletteTypes = []
       - paletteTypes.push({key: 'Pepto',  value: 'PEPTO'})
@@ -92,7 +100,7 @@ html
       each palette in paletteTypes
         option(value=palette.value) #{palette.key}
 
-    label(for='dither') Dither
+    label(for='dither') Dither&nbsp;
     select#dither
       - var ditherTypes = []
       - ditherTypes.push({key: 'mix',  value: 'noDither'})
@@ -103,15 +111,15 @@ html
       each dither in ditherTypes
         option(value=dither.value, selected=dither.selected) #{dither.key}
 
-    label(for='slider') Luma Diff Threshold
+    label(for='slider') Luma Diff Threshold&nbsp;
     input#slider(type='range', min='0', max='1' step='0.01' value='1')
     input#text(type='text', value='1')
 
     input#exclude(type='checkbox', name='exclude')
-    label(for='exclude') Hide mixed
+    label(for='exclude') Hide mixed&nbsp;
 
     input#swap(type='checkbox', name='swap', checked='true')
-    label(for='swap') Align
+    label(for='swap') Align&nbsp;
 
     table#table
 

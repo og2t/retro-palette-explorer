@@ -9,8 +9,12 @@ class Main
   scale: 2
   swap: true
   stopLoop: false
+  
+  @json: {}
 
   constructor: () ->
+    @imageContainer = document.getElementById 'image-container'
+
     @canvasContainer = document.getElementById 'canvas-container'
     @canvasContainer.addEventListener 'click', (event) =>
       @scale = if @scale is 1 then 2 else 1
@@ -40,7 +44,6 @@ class Main
     @ditherSelect = document.getElementById 'dither'
     @ditherSelect.onchange = (event) =>
       @ditherType = event.target.options[event.target.selectedIndex].value
-      console.log(@ditherType)
       if @ditherType is 'lace'
         @stopLoop = false
         @loop()
@@ -50,6 +53,7 @@ class Main
         setTimeout => 
           @table.classList.remove 'odd'
           @canvasContainer.classList.remove 'odd'
+          @imageContainer.classList.remove 'odd'
         , 100
       @filter()
 
@@ -84,7 +88,8 @@ class Main
 
 '''
     @mixed = []
-    @json = []
+    Main.json = {}
+    @paletteData = []
     for index1 in [0..0xf]
       for index2 in [index1..0xf]
         col1 = ColorUtils.colorToHEX @palette[index1]
@@ -147,10 +152,9 @@ class Main
           distToGreen: ColorUtils.getHEXDistance mix, ColorUtils.colorToHEX 0x00ff00
           distToBlue:  ColorUtils.getHEXDistance mix, ColorUtils.colorToHEX 0x0000ff
 
-        # @json.push
-        #   index1: index1
-        #   index2: index2
-        #   mix: mix
+        Main.json[mix] =
+          color1: ColorUtils.colorToHEX @palette[index1]
+          color2: ColorUtils.colorToHEX @palette[index2]
 
         @output.value += mix.split('#').join('ff').toUpperCase() + '\n'
     # Add remaining rows
@@ -158,7 +162,8 @@ class Main
     if (remainingRows > 0)
       for r in [0..remainingRows]
         @output.value += 'FFFFFFFF' + '\n'
-    @json = @output.value
+    @paletteData = @output.value
+    log @json
     return
 
 
@@ -172,7 +177,7 @@ class Main
     @drawColors()
     # @createGradient()
     # @print JSON.stringify @json
-    @print @json
+    # @print @paletteData
     return
 
 
@@ -248,11 +253,11 @@ class Main
     fields = [
       "# of "
       "mixed"
-      "color1"
-      "color2"
-      "color1"
-      "color2"
-      "RGB distance"
+      "#col1"
+      "#col2"
+      "col1"
+      "col2"
+      "RGB dist"
       "hue"
       "saturation"
       "luma"
@@ -356,6 +361,7 @@ class Main
   loop: () ->
     @table.classList.toggle 'odd'
     @canvasContainer.classList.toggle 'odd'
+    @imageContainer.classList.toggle 'odd'
     if @stopLoop then return
     requestAnimationFrame => @loop()
     return
