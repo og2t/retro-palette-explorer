@@ -163,7 +163,6 @@ class Main
       for r in [0..remainingRows]
         @output.value += 'FFFFFFFF' + '\n'
     @paletteData = @output.value
-    log @json
     return
 
 
@@ -177,7 +176,7 @@ class Main
     @drawColors()
     # @createGradient()
     # @print JSON.stringify @json
-    # @print @paletteData
+    @print @paletteData
     return
 
 
