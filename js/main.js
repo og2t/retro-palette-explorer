@@ -156,7 +156,6 @@ Main = (function() {
         }
       }
       this.paletteData = this.output.value;
-      log(this.json);
     }
 
     filter() {
@@ -168,11 +167,11 @@ Main = (function() {
       this.createTable();
       this.fillTable();
       this.drawColors();
+      // @createGradient()
+      // @print JSON.stringify @json
+      this.print(this.paletteData);
     }
 
-    // @createGradient()
-    // @print JSON.stringify @json
-    // @print @paletteData
     print(buffer) {
       FileSaver.saveAsTextFile(buffer);
     }
