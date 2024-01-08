@@ -5,20 +5,46 @@ html
     title C64 Palette Explorer
     link(rel='stylesheet', href='css/styles.css')
     link(rel='stylesheet', href='css/collapsible.css')
+    link(rel='stylesheet', href='css/image-drop.css')
   body
-    h1 <strike>Retro</strike> C64 Palette Explorer v0.53
+    h1 <strike>Retro</strike> C64 Palette Explorer v0.6.0
     p by Digger/Elysium © 2016-24
 
-    #canvas-container
-      canvas#canvas
-      canvas#canvas-alt
+   
+    .side-panel
+      input#collapsible-preview.toggle(type='checkbox' checked)
+      label.lbl-toggle(for='collapsible-preview' tabindex='0') Preview
+      .collapsible-content
+        #canvas-container
+          canvas#canvas
+          canvas#canvas-alt
 
-    .collabsible-wrapper
-      input#collapsible.toggle(type='checkbox' checked='true')
-      label.lbl-toggle(for='collapsible' tabindex='0') Export
+      input#collapsible-image.toggle(type='checkbox' checked)
+      label.lbl-toggle(for='collapsible-image' tabindex='0') Image conversion
+      .collapsible-content
+        #drop-area(
+          onDragOver="FileUpload.handleDragOver(event)"
+          onDragLeave="FileUpload.handleDragLeave(event)"
+          onDrop="FileUpload.handleDrop(event)"
+          onClick="document.getElementById('file-input').click()"
+        )
+          label(htmlFor="file-input") Drag and drop an image here or click to select one.
+          input(
+            type="file"
+            id="file-input"
+            accept="image/*"
+            style="display:none"
+            onChange="FileUpload.handleFileSelect(event)"
+          )
+        img#image-preview(alt="Image Preview", style="display:none")
+
+      input#collapsible.toggle(type='checkbox')
+      label.lbl-toggle(for='collapsible' tabindex='0') Palette export
       .collapsible-content
         textarea#output
         a#downloadlink(download='timanthes.txt' style='display: none') Download Timanthes palette
+
+    
 
     label(for='sort') Sort by
     select#sort
@@ -96,4 +122,6 @@ html
     script(src='js/file-saver.js')
     script(src='js/sort-utils.js')
     script(src='js/color-utils.js')
+    script(src='js/process-image.js')
+    script(src='js/file-upload.js')
     script(src='js/main.js')

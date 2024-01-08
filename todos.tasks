@@ -1,3 +1,6 @@
+- auto detect palette
+- apply dither patterns to two images
+
 - cancelAnimationFrame
 
 - add dither interlace
