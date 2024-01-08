@@ -3,6 +3,7 @@ var Main, main;
 Main = (function() {
   class Main {
     constructor() {
+      this.imageContainer = document.getElementById('image-container');
       this.canvasContainer = document.getElementById('canvas-container');
       this.canvasContainer.addEventListener('click', (event) => {
         this.scale = this.scale === 1 ? 2 : 1;
@@ -30,7 +31,6 @@ Main = (function() {
       this.ditherSelect = document.getElementById('dither');
       this.ditherSelect.onchange = (event) => {
         this.ditherType = event.target.options[event.target.selectedIndex].value;
-        console.log(this.ditherType);
         if (this.ditherType === 'lace') {
           this.stopLoop = false;
           this.loop();
@@ -39,7 +39,8 @@ Main = (function() {
           this.stopLoop = true;
           setTimeout(() => {
             this.table.classList.remove('odd');
-            return this.canvasContainer.classList.remove('odd');
+            this.canvasContainer.classList.remove('odd');
+            return this.imageContainer.classList.remove('odd');
           }, 100);
         }
         return this.filter();
@@ -75,7 +76,8 @@ Main = (function() {
 ; slots will be set to white (FFFFFFFF). If there are more, then the remaining colors will be ignored.
 `;
       this.mixed = [];
-      this.json = [];
+      Main.json = {};
+      this.paletteData = [];
       for (index1 = j = 0; j <= 15; index1 = ++j) {
         for (index2 = k = ref = index1; (ref <= 0xf ? k <= 0xf : k >= 0xf); index2 = ref <= 0xf ? ++k : --k) {
           col1 = ColorUtils.colorToHEX(this.palette[index1]);
@@ -88,14 +90,8 @@ Main = (function() {
           distance = ColorUtils.getHEXDistance(col1, col2);
           diffLuma = Math.abs(Palettes.lumas[index1] - Palettes.lumas[index2]) / 32;
           diffL = Math.abs(col2HSL.l - col1HSL.l);
-          if (this.paletteType === 'PICO8') {
-            if (diffL > this.lumaDiffThreshold) {
-              continue;
-            }
-          } else {
-            if (diffLuma > this.lumaDiffThreshold) {
-              continue;
-            }
+          if (diffLuma > this.lumaDiffThreshold) {
+            continue;
           }
           // if @excludeNative and (col1 is col2) then continue
           if (this.excludeNative && (col1 !== col2)) {
@@ -145,10 +141,10 @@ Main = (function() {
             distToGreen: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(0x00ff00)),
             distToBlue: ColorUtils.getHEXDistance(mix, ColorUtils.colorToHEX(0x0000ff))
           });
-          // @json.push
-          //   index1: index1
-          //   index2: index2
-          //   mix: mix
+          Main.json[mix] = {
+            color1: ColorUtils.colorToHEX(this.palette[index1]),
+            color2: ColorUtils.colorToHEX(this.palette[index2])
+          };
           this.output.value += mix.split('#').join('ff').toUpperCase() + '\n';
         }
       }
@@ -159,13 +155,11 @@ Main = (function() {
           this.output.value += 'FFFFFFFF' + '\n';
         }
       }
-      this.json = this.output.value;
+      this.paletteData = this.output.value;
+      log(this.json);
     }
 
     filter() {
-      if (this.paletteType === 'PICO8') {
-        this.sortBy = this.sortBy.join(',').replace('luma', 'l').split(',');
-      }
       this.createData();
       this.sortBy.unshift('diffLuma');
       if (this.sortBy.length > 0) {
@@ -174,11 +168,11 @@ Main = (function() {
       this.createTable();
       this.fillTable();
       this.drawColors();
-      // @createGradient()
-      // @print JSON.stringify @json
-      this.print(this.json);
     }
 
+    // @createGradient()
+    // @print JSON.stringify @json
+    // @print @paletteData
     print(buffer) {
       FileSaver.saveAsTextFile(buffer);
     }
@@ -252,7 +246,7 @@ Main = (function() {
       while (this.table.firstChild) {
         this.table.removeChild(this.table.firstChild);
       }
-      fields = ["#", "mixed", "color1", "color2", "color1", "color2", "RGB distance", "hue", "saturation", "luma", "luma diff", "hex luma", "hex luma diff", "hex value"];
+      fields = ["# of ", "mixed", "#col1", "#col2", "col1", "col2", "RGB dist", "hue", "saturation", "luma", "luma diff", "hex luma", "hex luma diff", "hex value"];
       header = this.table.createTHead();
       row = header.insertRow(0);
       for (i = j = 0, len = fields.length; j < len; i = ++j) {
@@ -312,7 +306,7 @@ Main = (function() {
     }
 
     fillTable() {
-      var body, canvas, cellSize, context, i, j, len, obj, ref, row;
+      var body, canvas, cellSize, context, i, j, len, numCols, obj, ref, ref1, ref2, row;
       cellSize = 16;
       body = this.table.createTBody();
       ref = this.mixed;
@@ -343,12 +337,15 @@ Main = (function() {
         row.insertCell(11).innerHTML = obj.l.toFixed(2);
         row.insertCell(12).innerHTML = obj.diffL.toFixed(4);
         row.insertCell(13).innerHTML = obj.mix;
+        numCols = (ref1 = this.table.querySelector('thead')) != null ? (ref2 = ref1.childNodes[0]) != null ? ref2.childNodes[0] : void 0 : void 0;
+        numCols.innerHTML = '#/' + this.mixed.length;
       }
     }
 
     loop() {
       this.table.classList.toggle('odd');
       this.canvasContainer.classList.toggle('odd');
+      this.imageContainer.classList.toggle('odd');
       if (this.stopLoop) {
         return;
       }
@@ -376,6 +373,8 @@ Main = (function() {
   Main.prototype.swap = true;
 
   Main.prototype.stopLoop = false;
+
+  Main.json = {};
 
   return Main;
 
