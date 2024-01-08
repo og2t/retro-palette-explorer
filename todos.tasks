@@ -1,4 +1,5 @@
 - auto detect palette
+- draw two images
 - apply dither patterns to two images
 
 - cancelAnimationFrame

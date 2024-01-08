@@ -98,10 +98,7 @@ class Main
         diffLuma = Math.abs(Palettes.lumas[index1] - Palettes.lumas[index2]) / 32
         diffL = Math.abs(col2HSL.l - col1HSL.l)
 
-        if @paletteType is 'PICO8'
-          if diffL > @lumaDiffThreshold then continue
-        else
-          if diffLuma > @lumaDiffThreshold then continue
+        if diffLuma > @lumaDiffThreshold then continue
 
         # if @excludeNative and (col1 is col2) then continue
         if @excludeNative and (col1 isnt col2) then continue
@@ -166,8 +163,6 @@ class Main
 
 
   filter: () ->
-    if @paletteType is 'PICO8'
-      @sortBy = @sortBy.join(',').replace('luma', 'l').split(',')
     @createData()
     @sortBy.unshift 'diffLuma'
     if @sortBy.length > 0
@@ -251,7 +246,7 @@ class Main
       @table.removeChild @table.firstChild
 
     fields = [
-      "#"
+      "# of "
       "mixed"
       "color1"
       "color2"
@@ -353,6 +348,8 @@ class Main
       row.insertCell(11).innerHTML = obj.l.toFixed(2)
       row.insertCell(12).innerHTML = obj.diffL.toFixed(4)
       row.insertCell(13).innerHTML = obj.mix
+      numCols = @table.querySelector('thead')?.childNodes[0]?.childNodes[0];
+      numCols.innerHTML = '#/' + @mixed.length
     return
 
 
